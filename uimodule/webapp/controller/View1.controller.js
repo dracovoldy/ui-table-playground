@@ -68,7 +68,7 @@ sap.ui.define([
                 AppStateModel.refresh(true);
             },
 
-            getEditMode: function (bBool) {
+            getEditMode: function () {
                 const AppStateModel = this.getOwnerComponent().getModel("AppStateModel");
                 let state = [AppStateModel.getProperty('/editMode')];
                 state = [...state]
