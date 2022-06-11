@@ -1,258 +1,158 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-debugger */
+/* eslint-disable no-console */
+/* eslint-disable prefer-template */
 // @ts-nocheck
-/* eslint-disable no-var */
-sap.ui.define(["sap/ui/core/mvc/Controller", "sap/ui/model/json/JSONModel"], function (Controller, JSONModel) {
-    "use strict";
-    // this.site = "1002";
-    return Controller.extend("oft.fiori.crudBatch.controller.View1", {
-        onInit: function () {
-            var oODataJSONModelDLSet = new JSONModel();
+// eslint-disable-next-line @sap/ui5-jsdocs/no-jsdoc
+sap.ui.define([
+    'sap/ui/core/mvc/Controller',
+    'sap/ui/model/json/JSONModel',
+    'sap/m/MessageBox'
+],
+    function (Controller, JSONModel, MessageBox) {
+        "use strict";
+        return Controller.extend("oft.fiori.crudBatch.controller.View1", {
+            onInit: function () {
 
-            this.getOwnerComponent().setModel(oODataJSONModelDLSet, "ProductsModel");
-
-            var oModel = this.getOwnerComponent().getModel();
-            oModel.read("/ProductSet", {
-                success: function (data, response) {
-                    // console.log(data);
-                    oODataJSONModelDLSet.setData({ ProductSet: data });
-                },
-                error: function (err) {},
-            });
-            // console.log(this.getOwnerComponent().getModel("ProductsModel"));
-            // console.log(this.getView().byId("testSelect"));
-
-            var visibilityDataMod = new JSONModel();
-            visibilityDataMod.setData({ visibleTrue: true, visibleFalse: false });
-
-            this.getOwnerComponent().setModel(visibilityDataMod, "controlVisibilityModel");
-            console.log(this.getOwnerComponent().getModel("controlVisibilityModel"));
-            this.site = "9000";
-            if (this.site === "1002") {
-                var oTemplateN = new sap.ui.core.ListItem({
-                    text: "{Waers}",
-                    key: "{Waers}",
-                });
-
-                this.getView().byId("testSelect").bindItems("/VH_CurrencySet", {
-                    template: oTemplateN,
-                });
-            } else {
-                oTemplateN = new sap.ui.core.ListItem({
-                    text: "{Landx}",
-                    key: "{Landx}",
-                });
-
-                this.getView().byId("testSelect").bindItems("/VH_CountrySet", oTemplateN);
-            }
-        },
-
-        getUpdateHeader: function () {
-            this.oModel = this.getOwnerComponent().getModel();
-            var that = this;
-            return new Promise(function (resolve, reject) {
-                that.oModel.read("/ProductSet('AA005')", {
+                // Initilized here, better way is to initialize in manifest.json to resolve Model refresh issues,
+                // work around is to use oModel.refesh() manually
+                const ProductsModel = new JSONModel();
+                this.getOwnerComponent().setModel(ProductsModel, "ProductsModel");
+                const oModel = this.getOwnerComponent().getModel();
+                oModel.read("/ProductSet", {
                     success: function (data, response) {
                         // console.log(data);
-                        // console.log(response);
-                        // console.log(response.headers.etag);
-                        var eTAG = response.headers.etag;
-                        resolve(response.headers);
+                        const res = data.results.map(function (item) {
+                            item.bEditable = false;
+                            item.isDirty = false;
+                            return item;
+                        });
+                        ProductsModel.setData({ "ProductSet": res });
                     },
-                    error: function (err) {},
-                });
-            });
-        },
-
-        createBatchProductsData: function () {
-            this.data1 = {
-                ProductID: "AA005",
-                TypeCode: "PR",
-                Category: "Notebooks",
-                Name: "Pri2",
-                SupplierID: "0100000046",
-                SupplierName: "SAP",
-                TaxTarifCode: parseInt("1"),
-                MeasureUnit: "EA",
-                WeightMeasure: "20",
-                WeightUnit: "KG",
-                CurrencyCode: "EUR",
-                Price: "300",
-            };
-
-            var data2 = {
-                ProductID: "AA007",
-                TypeCode: "PR",
-                Category: "Notebooks",
-                Name: "PS2",
-                SupplierID: "0100000046",
-                SupplierName: "SAP",
-                TaxTarifCode: parseInt("1"),
-                MeasureUnit: "EA",
-                WeightMeasure: "20",
-                WeightUnit: "KG",
-                CurrencyCode: "EUR",
-                Price: "250",
-            };
-            this.oModel = this.getOwnerComponent().getModel();
-
-            var eTAG;
-            var that = this;
-
-            // oModel.createEntry("/ProductSet", {properties:data1});
-
-            this.getUpdateHeader().then(function (headerData) {
-                console.log(headerData.etag);
-                // 	that.oModel.createEntry("/ProductSet('AA005')", {
-                // 	"headers":{"If-Match":headerData.etag},
-                // 	// "headers":headerData,
-                // 	properties: that.data1
-
-                // });
-
-                that.oModel.update("/ProductSet('AA005')", that.data1, {
-                    success: function (data, response) {},
-                    error: function (err) {},
+                    error: function (err) {
+                        console.log(err);
+                    },
                 });
 
-                // that.oModel.createEntry("/ProductSet", {
-                // 	properties: this.data1
-                // });
-
-                that.oModel.createEntry("/ProductSet", {
-                    properties: data2,
+                // AppState JSON - Keep all app states here
+                const AppStateModel = new JSONModel();
+                AppStateModel.setData({
+                    editMode: false
                 });
+                this.getOwnerComponent().setModel(AppStateModel, "AppStateModel");
 
-                console.log("test");
-                console.log(that.oModel.hasPendingChanges());
-                console.log(that.oModel.getPendingChanges());
-                that.oModel.submitChanges({
-                    success: function (data, response) {},
-                    error: function (err) {},
-                });
-            });
-        },
+                // Some Other JSON model
+                this.site = "9000";
+                if (this.site === "1002") {
+                    const oTemplateN = new sap.ui.core.ListItem({
+                        text: "{Waers}",
+                        key: "{Waers}",
+                    });
 
-        trackScroll: function (iStart, iVisibleRowCount) {
-            if(!this.EditMode) {
-				return;
-			}
-            var oTable = this.getView().byId("prodTab");
-            var aItems = oTable.getSelectedIndices();
+                    this.getView().byId("testSelect").bindItems("/VH_CurrencySet", {
+                        template: oTemplateN,
+                    });
+                } else {
+                    const oTemplateN = new sap.ui.core.ListItem({
+                        text: "{Landx}",
+                        key: "{Landx}",
+                    });
 
-			for (let i = 0; i < iVisibleRowCount; i++) {
-                oTable.getAggregation("rows")[i].getAggregation("cells")[1].getItems()[0].setVisible(true);
-                oTable.getAggregation("rows")[i].getAggregation("cells")[1].getItems()[1].setVisible(false);
-            }
-
-            for (let idx = 0; idx < aItems.length; idx++) {
-                if (aItems[idx] >= iStart && aItems[idx] <= iEnd) {
-                    oTable.getAggregation("rows")[aItems[idx] - iStart].getAggregation("cells")[1].getItems()[0].setVisible(false);
-                    oTable.getAggregation("rows")[aItems[idx] - iStart].getAggregation("cells")[1].getItems()[1].setVisible(true);
+                    this.getView().byId("testSelect").bindItems("/VH_CountrySet", oTemplateN);
                 }
-                // else {
-                // 	oTable.getAggregation("rows")[i].getAggregation("cells")[1].getItems()[0].setVisible(true);
-                // 	oTable.getAggregation("rows")[i].getAggregation("cells")[1].getItems()[1].setVisible(false);
-                // }
-            }
+            },
 
-            
-        },
+            /* There cound be a better way of making this happen using sap.ui.table.Table.extend */
+            trackScroll: function () {
+                // debugger;
 
-        onEditPress: function () {
-			this.EditMode = true;
-            var oProdTable = this.getView().byId("prodTab");
-            var selectedIndicesArr = oProdTable.getSelectedIndices();
-            // var selectedIndicesArr = this.onSelctionChange();
-            // this.getSelectedItemBinding(selectedIndicesArr).then(function (data) {
-            	selectedIndicesArr.forEach(function (selectedIndex) {
-            		oProdTable.getAggregation("rows")[selectedIndex].getAggregation("cells")[1].getItems()[0].setVisible(false);
-            		oProdTable.getAggregation("rows")[selectedIndex].getAggregation("cells")[1].getItems()[1].setVisible(true);
-            	});
-            // });
-            this.getView().byId("editSave").setVisible(true);
-            this.getView().byId("cancel").setVisible(true);
-            this.getView().byId("editProd").setVisible(false);
-        },
+                const oTable = this.getView().byId("prodTab");
+                const oModel = this.getOwnerComponent().getModel("ProductsModel");
+                const AppStateModel = this.getOwnerComponent().getModel("AppStateModel");
+                const aItems = oTable.getSelectedIndices();
+                console.log(`Selected Indices Array: [${aItems}] `);
 
-        getSelectedItemBinding: function (selectedIndicesArr) {
-            // console.log(selectedIndicesArr);
-            var oProdTable = this.getView().byId("prodTab");
-            var selectedContextArr = [];
-            return new Promise(function (resolve, reject) {
-                selectedIndicesArr.forEach(function (index) {
-                    selectedContextArr.push(oProdTable.getContextByIndex(index));
-                    // resolve(oProdTable.getAggregation("rows")[index].getBindingContext());
-                    // resolve(oProdTable.getContextByIndex(index));
-                });
+                const editMode = AppStateModel.getProperty('/editMode')
 
-                resolve(selectedContextArr);
-            });
-        },
+                let obj;
 
-        onSelctionChange: function (oEvent) {
-            var that = this;
-            this.oTable = this.getView().byId("prodTab");
-            this.getSelection = this.oTable.getSelectedIndices();
-            // console.log(getSelection);
+                // Set all visible rows to uneditable on scroll change.
+                for (let i = 0; i < oTable.getVisibleRowCount(); i++) {
+                    obj = oModel.getProperty(oTable.getRows()[i].getBindingContext("ProductsModel").getPath());
+                    obj.bEditable = false;
+                }
 
-            if (this.getSelection.length > 0) {
-                this.getView().byId("editProd").setEnabled(true);
-            } else {
-                this.getView().byId("editProd").setEnabled(false);
-            }
+                if (editMode) {
+                    // Use JSON model local bEditable state prop to track editable status. 2 - way binding efficiently does the job.
+                    for (let idx = 0; idx < aItems.length; idx++) {
+                        obj = oModel.getProperty('/ProductSet/' + aItems[idx]);
+                        obj.bEditable = true;
+                    }
+                }
+                oModel.refresh(true);
 
-            return this.getSelection;
-        },
+            },
 
-        onPressSaveEdit: function () {
-            this.oProdTable = this.getView().byId("prodTab");
-            var selectedIndicesArr = this.onSelctionChange();
+            // TODO: on change of input field get context of the row from cell and update isDirty flag
+            updateDirty: function (oEvent) {
+            },
 
-            var that = this;
+            // eslint-disable-next-line no-unused-vars
+            onEditPress: function (oEvent) {
+                const AppStateModel = this.getOwnerComponent().getModel('AppStateModel');
+                AppStateModel.setProperty('/editMode', true);
+                AppStateModel.refresh();
+                this.trackScroll();
+            },
 
-            selectedIndicesArr.forEach(function (selectedIndex) {
-                that.oProdTable.getAggregation("rows")[selectedIndex].getAggregation("cells")[1].getItems()[0].setVisible(true);
-                that.oProdTable.getAggregation("rows")[selectedIndex].getAggregation("cells")[1].getItems()[1].setVisible(false);
-            });
-            this.oProdTable.clearSelection();
-            // console.log(this.getOwnerComponent().getModel().getPendingChanges());
-            this.getOwnerComponent().getModel().submitChanges();
-            this.getOwnerComponent().getModel().refresh(true);
+            onSelctionChange: function (oEvent) {
+                const oProdTable = oEvent.getSource();
+                const AppStateModel = this.getOwnerComponent().getModel('AppStateModel');
+                const selection = oEvent.getSource().getSelectedIndices();
 
-            this.getView().byId("editSave").setVisible(false);
-            this.getView().byId("cancel").setVisible(false);
+                if (selection.length > 0) {
+                    this.getView().byId("editProd").setEnabled(true);
 
-            this.getView().byId("editProd").setVisible(true);
-        },
+                } else {
+                    this.getView().byId("editProd").setEnabled(false);
+                }
 
-        onPressCancelEdit: function () {
-			this.EditMode = false;
-            this.oProdTable = this.getView().byId("prodTab");
-            var oModel = this.getOwnerComponent().getModel();
-            // console.log(oModel.getPendingChanges());
-            this.getView().byId("editSave").setVisible(false);
-            this.getView().byId("cancel").setVisible(false);
+                if (selection.length > 0 && AppStateModel.getProperty('/editMode') === true) {
+                    this.trackScroll();
+                }
+            },
 
-            this.getView().byId("editProd").setVisible(true);
-            // this.getView().byId("colWithProdNameText").setVisible(true);
-            // this.getView().byId("colWithProdNameInp").setVisible(false);
+            onPressSaveEdit: function () {
+                // Implement in similar way as cancel
 
-            // var selectedIndicesArr = this.oProdTable.getSelectedIndices();
-            var selectedIndicesArr = this.onSelctionChange();
-            var that = this;
-            selectedIndicesArr.forEach(function (selectedIndex) {
-                that.oProdTable.getAggregation("rows")[selectedIndex].getAggregation("cells")[1].getItems()[0].setVisible(true);
-                that.oProdTable.getAggregation("rows")[selectedIndex].getAggregation("cells")[1].getItems()[1].setVisible(false);
-            });
-            this.oProdTable.clearSelection();
-            oModel.resetChanges();
-            oModel.refresh(true);
-        },
+                MessageBox.information("Data is saved");
+                this.onPressCancelEdit();
 
-        onScroll: function (oEvent) {
-            this.trackScroll(oEvent.getParameter("firstVisibleRow"), oEvent.getSource().getVisibleRowCount());
-            // var iCount = this.getView().byId("prodTab").getVisibleRowCount() + oEvent.getParameter("firstVisibleRow");
-            // // this.getView().byId("prodTab").setVisibleRowCount(iCount);
-            // console.log(iCount);
-        },
+            },
+
+            onPressCancelEdit: function () {
+
+                const AppStateModel = this.getOwnerComponent().getModel('AppStateModel');
+                const oTable = this.getView().byId("prodTab");
+                const oModel = this.getOwnerComponent().getModel("ProductsModel");
+
+                let obj;
+                // Set all visible rows to uneditable on scroll change.
+                for (let i = 0; i < oTable.getVisibleRowCount(); i++) {
+                    obj = oModel.getProperty(oTable.getRows()[i].getBindingContext("ProductsModel").getPath());
+                    obj.bEditable = false;
+                }
+
+                oTable.clearSelection();
+                oModel.refresh(true);
+
+                AppStateModel.setProperty('/editMode', false);
+                AppStateModel.refresh();
+
+            },
+
+            onScroll: function (oEvent) {
+                this.trackScroll();
+            },
+        });
     });
-});

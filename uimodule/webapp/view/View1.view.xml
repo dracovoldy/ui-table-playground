@@ -1,97 +1,112 @@
-<mvc:View controllerName="oft.fiori.crudBatch.controller.View1" 
-xmlns:mvc="sap.ui.core.mvc" 
-displayBlock="true" 
-xmlns="sap.m" 
-xmlns:table="sap.ui.table">
-	
+<mvc:View
+		controllerName="oft.fiori.crudBatch.controller.View1"
+		xmlns:mvc="sap.ui.core.mvc"
+		displayBlock="true"
+		xmlns="sap.m"
+		xmlns:table="sap.ui.table">
+
 	<Shell id="shell">
 		<App id="app">
 			<pages>
-				<Page id="page" title="{i18n>title}">
+				<Page
+						id="page"
+						title="{i18n>title}">
 					<content>
-						<Button id="create" text="Create" press="createBatchProductsData"></Button>
+						<Button
+								id="create"
+								text="Create"
+								press="createBatchProductsData"></Button>
 						<Select id="testSelect">
 							<!--<core:Item key="{Waers}" text="{Waers}" />-->
 						</Select>
-							<VBox>
+						<VBox>
 							<items>
-						<table:Table id="prodTab" selectionMode="MultiToggle"
-						enableSelectAll="true"
-						rows="{
-						
-						path:'/ProductSet'
-						
-						}"
-						enableBusyIndicator="true"
-						
-						editable="true"
-						rowSelectionChange="onSelctionChange"
-						visibleRowCount="10"
-						selectionBehavior="RowSelector"
-						firstVisibleRowChanged="onScroll"
-						rowHeight="40px"
-						
-						>
-							<table:noData>
-								<BusyIndicator class="sapUiMediumMargin"></BusyIndicator>
-							</table:noData>
-							<table:extension>
-								
-							<OverflowToolbar>
-								<Title id="title" text="Products"></Title>
-								<ToolbarSpacer></ToolbarSpacer>
-								<Button id="editProd" text="Edit" tooltip="Edit Product Data for selected rows"
-								press="onEditPress" enabled="false"></Button>
-								
-								<Button id="editSave" text="Save" tooltip="Save edited data" visible="false" press="onPressSaveEdit"></Button>
-								<Button id="cancel" text="Cancel" tooltip="Cancel changes" visible="false" press="onPressCancelEdit"></Button>
-							</OverflowToolbar>
-							
-							</table:extension>
-							
-							<table:columns>
-							
-								<table:Column>
-									<Label text="Product ID"></Label>
-									<table:template>
-										<VBox>
-											<items>
-										<Text text="{ProductID}"></Text>
-										<Input editable="false" enabled="false" visible="false"></Input>
-										</items>
-										</VBox>
-									</table:template>
-								</table:Column>
-								
-								<table:Column>
-									<Label text="Product Name"></Label>
-									<table:template>
-										<VBox>
-										<items>
-											
-										<Text id="tabProdNameText" text="{Name}" visible="true"></Text>
-										
-										
-										<Input id="tabProdNameINP" value="{Name}" visible="false"></Input>
-										</items>	
-										</VBox>
-									</table:template>
-								</table:Column>
-								
-								<!--<table:Column id="colWithProdNameInp" visible="false">-->
-								<!--	<Label text="Product Name"></Label>-->
-								<!--	<table:template>-->
-										<!--<Text id="tabProdNameText" text="{Name}"></Text>-->
-								<!--		<Input id="tabProdNameINP" value="{Name}"></Input>-->
-								<!--	</table:template>-->
-								<!--</table:Column>-->
-								
-							</table:columns>
-							
-						</table:Table>
-						</items>
-					
-							</VBox>
+								<table:Table
+										id="prodTab"
+										selectionMode="MultiToggle"
+										enableSelectAll="true"
+										rows="{ProductsModel>/ProductSet}"
+										enableBusyIndicator="true"
+										editable="false"
+										rowSelectionChange="onSelctionChange"
+										visibleRowCount="10"
+										selectionBehavior="RowSelector"
+										firstVisibleRowChanged="onScroll"
+										rowHeight="40px">
+									<table:noData>
+										<BusyIndicator class="sapUiMediumMargin"></BusyIndicator>
+									</table:noData>
+									<table:extension>
+
+										<OverflowToolbar>
+											<Title
+													id="title"
+													text="Products"></Title>
+											<ToolbarSpacer></ToolbarSpacer>
+											<Button
+													id="editProd"
+													text="Edit"
+													tooltip="Edit Product Data for selected rows"
+													press="onEditPress"
+													enabled="false"
+													visible="{= ${AppStateModel>/editMode} ? false : true }" />
+
+											<Button
+													id="editSave"
+													text="Save"
+													tooltip="Save edited data"
+													visible="{= ${AppStateModel>/editMode} ? true : false }"
+													press="onPressSaveEdit" />
+											<Button
+													id="cancel"
+													text="Cancel"
+													tooltip="Cancel changes"
+													visible="{= ${AppStateModel>/editMode} ? true : false }"
+													press="onPressCancelEdit" />
+										</OverflowToolbar>
+
+									</table:extension>
+
+									<table:columns>
+
+										<table:Column>
+											<Label text="Product ID"></Label>
+											<table:template>
+												<VBox>
+													<items>
+														<Text text="{ProductsModel>ProductID}"></Text>
+														<Input
+																editable="false"
+																enabled="false"
+																visible="false"></Input>
+													</items>
+												</VBox>
+											</table:template>
+										</table:Column>
+
+										<table:Column>
+											<Label text="Product Name"></Label>
+											<table:template>
+												<VBox>
+													<items>
+														<!-- <Text id="tabProdNameText" text="{ProductsModel>Name}" visible="{= ${ProductsModel>bEditable} === true ? false : true}"></Text> -->
+														<Input
+																value="{ProductsModel>Name}"
+																editable="{ProductsModel>bEditable}"
+																change="updateDirty"
+																/>
+													</items>
+												</VBox>
+											</table:template>
+										</table:Column>
+
+
+									</table:columns>
+
+								</table:Table>
+							</items>
+
+						</VBox>
 					</content>
 				</Page>
 			</pages>
