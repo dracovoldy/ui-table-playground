@@ -10,7 +10,8 @@
 			<pages>
 				<Page
 						id="page"
-						title="{i18n>title}">
+						title="{i18n>title}"
+						enableScrolling="false">
 					<content>
 						<Button
 								id="create"
@@ -23,15 +24,16 @@
 							<items>
 								<table:Table
 										id="prodTab"
-										selectionMode="MultiToggle"
 										enableSelectAll="true"
 										rows="{ProductsModel>/ProductSet}"
 										enableBusyIndicator="true"
 										editable="false"
 										rowSelectionChange="onSelctionChange"
-										visibleRowCount="10"
-										selectionBehavior="RowSelector"
+										minAutoRowCount="10"
 										firstVisibleRowChanged="onScroll"
+										visibleRowCountMode="Auto"
+										selectionMode="{= ${AppStateModel>/editMode} ? 'MultiToggle' : 'MultiToggle' }"
+										selectionBehavior="{= ${AppStateModel>/editMode} ? 'RowSelector' : 'RowSelector' }"
 										rowHeight="40px">
 									<table:noData>
 										<BusyIndicator class="sapUiMediumMargin"></BusyIndicator>
@@ -89,12 +91,15 @@
 											<table:template>
 												<VBox>
 													<items>
-														<!-- <Text id="tabProdNameText" text="{ProductsModel>Name}" visible="{= ${ProductsModel>bEditable} === true ? false : true}"></Text> -->
+														<Text
+																id="tabProdNameText"
+																text="{ProductsModel>Name}"
+																visible="{= ${ProductsModel>bEditable} ? false : true}"></Text>
 														<Input
 																value="{ProductsModel>Name}"
 																editable="{ProductsModel>bEditable}"
-																change="updateDirty"
-																/>
+																visible="{ProductsModel>bEditable}"
+																change="updateDirty" />
 													</items>
 												</VBox>
 											</table:template>

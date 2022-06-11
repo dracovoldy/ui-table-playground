@@ -135,13 +135,21 @@ sap.ui.define([
                 // Implement in similar way as cancel
                 MessageBox.information("Data is saved");
                 this.onPressCancelEdit();
+
+                // let arr = this.getOwnerComponent().getModel("ProductModel").getProperty("/ProductSet");
+
+                // for to filter out edited only rows
+                // for to filter new rows
+                // for to fitler delete row
+
+                // oModel.create(arr) POST
             },
 
             onPressCancelEdit: function () {
                 const oTable = this.getView().byId("prodTab");
                 oTable.clearSelection();
-                this.trackScroll();
                 this.setEditMode(false);
+                this.trackScroll();
             },
 
             onScroll: function (oEvent) {
