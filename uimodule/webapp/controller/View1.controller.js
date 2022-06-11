@@ -62,17 +62,29 @@ sap.ui.define([
                 }
             },
 
+            setEditMode: function (bBool) {
+                const AppStateModel = this.getOwnerComponent().getModel("AppStateModel");
+                AppStateModel.setProperty('/editMode', bBool);
+                AppStateModel.refresh(true);
+            },
+
+            getEditMode: function (bBool) {
+                const AppStateModel = this.getOwnerComponent().getModel("AppStateModel");
+                let state = [AppStateModel.getProperty('/editMode')];
+                state = [...state]
+                return state[0];
+            },
+
             /* There cound be a better way of making this happen using sap.ui.table.Table.extend */
             trackScroll: function () {
                 // debugger;
 
                 const oTable = this.getView().byId("prodTab");
                 const oModel = this.getOwnerComponent().getModel("ProductsModel");
-                const AppStateModel = this.getOwnerComponent().getModel("AppStateModel");
                 const aItems = oTable.getSelectedIndices();
                 console.log(`Selected Indices Array: [${aItems}] `);
 
-                const editMode = AppStateModel.getProperty('/editMode')
+                const editMode = this.getEditMode()
 
                 let obj;
 
@@ -99,15 +111,12 @@ sap.ui.define([
 
             // eslint-disable-next-line no-unused-vars
             onEditPress: function (oEvent) {
-                const AppStateModel = this.getOwnerComponent().getModel('AppStateModel');
-                AppStateModel.setProperty('/editMode', true);
-                AppStateModel.refresh();
+                this.setEditMode(true);
                 this.trackScroll();
             },
 
             onSelctionChange: function (oEvent) {
-                const oProdTable = oEvent.getSource();
-                const AppStateModel = this.getOwnerComponent().getModel('AppStateModel');
+                const editMode = this.getEditMode();
                 const selection = oEvent.getSource().getSelectedIndices();
 
                 if (selection.length > 0) {
@@ -117,38 +126,22 @@ sap.ui.define([
                     this.getView().byId("editProd").setEnabled(false);
                 }
 
-                if (selection.length > 0 && AppStateModel.getProperty('/editMode') === true) {
+                if (selection.length > 0 && editMode === true) {
                     this.trackScroll();
                 }
             },
 
             onPressSaveEdit: function () {
                 // Implement in similar way as cancel
-
                 MessageBox.information("Data is saved");
                 this.onPressCancelEdit();
-
             },
 
             onPressCancelEdit: function () {
-
-                const AppStateModel = this.getOwnerComponent().getModel('AppStateModel');
                 const oTable = this.getView().byId("prodTab");
-                const oModel = this.getOwnerComponent().getModel("ProductsModel");
-
-                let obj;
-                // Set all visible rows to uneditable on scroll change.
-                for (let i = 0; i < oTable.getVisibleRowCount(); i++) {
-                    obj = oModel.getProperty(oTable.getRows()[i].getBindingContext("ProductsModel").getPath());
-                    obj.bEditable = false;
-                }
-
                 oTable.clearSelection();
-                oModel.refresh(true);
-
-                AppStateModel.setProperty('/editMode', false);
-                AppStateModel.refresh();
-
+                this.trackScroll();
+                this.setEditMode(false);
             },
 
             onScroll: function (oEvent) {
