@@ -5,7 +5,7 @@ sap.ui.getCore().attachInit(function () {
 	"use strict";
 
 	sap.ui.require([
-		"oft/fiori/crudBatch/test/integration/AllJourneys"
+		"oft/fiori/crudBatch/test/unit/AllTests"
 	], function () {
 		QUnit.start();
 	});

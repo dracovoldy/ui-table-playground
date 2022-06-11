@@ -21,6 +21,21 @@ server:
       configuration:
         port: 35729
         path: uimodule/webapp
+    - name: ui5-middleware-simpleproxy
+      afterMiddleware: compression
+      mountPath: /sap
+      configuration:
+        baseUri: https://sapes5.sapdevcenter.com/sap
+        # username: S0021559804
+        # password: ps19913pd
+        # strictSSL: true
+        httpHeaders:
+          Authorization: Basic UzAwMjE1NTk4MDQ6cHMxOTkxM3Bk
+        #   Cookie: 'sap-usercontext=sap-language=EN&sap-client=002; MYSAPSSO2=AjQxMDMBABhTADAAMAAyADEANQA1ADkAOAAwADQAIAACAAYwADAAMgADABBFAFMANQAgACAAIAAgACAABAAYMgAwADIAMgAwADYAMAA0ADEANgAzADAABQAEAAAACAYAAlgACQACRQD%2fATkwggE1BgkqhkiG9w0BBwKgggEmMIIBIgIBATELMAkGBSsOAwIaBQAwCwYJKoZIhvcNAQcBMYIBATCB%2fgIBATBUMEgxCzAJBgNVBAYTAkRFMQ8wDQYDVQQKEwZTQVAtQUcxDDAKBgNVBAsTA0VTNTEaMBgGA1UEAwwRKi5kbXp3ZGYuc2FwLmNvcnACCAogIgIiB0YBMAkGBSsOAwIaBQCgXTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0yMjA2MDQxNjMwMzBaMCMGCSqGSIb3DQEJBDEWBBSvp1P0NdiW7nMry4Q06%21XrbqjmvjAJBgcqhkjOOAQDBC4wLAIUePtIPH3ydLFLrzFy0CFPl6ffoQMCFEAEo5nwoF23bduiUGVbPGhxqYV%21; SAP_SESSIONID_ES5_002=9I0kPtoC6frx0T_G897UFaZbKAnkIxHsoVtCAQoAA9g%3d'
+        query:
+          sap-client: "002"
+        # excludePatterns:
+        #   - /local/**
     - name: ui5-middleware-cfdestination
       afterMiddleware: compression
       configuration:
@@ -28,3 +43,11 @@ server:
         port: 1091
         xsappJson: ../approuter/xs-app.json
         destinations: []
+    # - name: fiori-tools-proxy
+    #   afterMiddleware: compression
+    #   configuration:
+    #   - path: /sap
+    #     url: https://sapes5.sapdevcenter.com
+    #     username: S0021559804
+    #     password: ps19913pd
+    #     # strictSSL: true
